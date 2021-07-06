@@ -106,7 +106,7 @@ def get_color(grid):
 
 
 # main loop
-frames = 10000  # Number of frames desired by user
+frames = 90000  # Number of frames desired by user
 num = 0
 for frame in range(frames):
     next_grid = update(current_grid)
