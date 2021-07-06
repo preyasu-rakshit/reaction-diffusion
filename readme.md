@@ -10,7 +10,7 @@ This project implements gray scott's reaction diffusion using python. Individual
 
 Here are a few samples of what this script can produce:
 
-![First Pic](SampleImages\pic1.png)  ![Second Pic](SampleImages\pic2.gif)
+![First Pic](SampleImages/pic1.png)  ![Second Pic](SampleImages/pic2.gif)
 
 ### Converting the frames to video:
 
