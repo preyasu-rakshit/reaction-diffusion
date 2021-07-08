@@ -12,6 +12,8 @@ Here are a few samples of what this script can produce:
 
 ![First Pic](SampleImages/pic1.png)  ![Second Pic](SampleImages/pic2.gif)
 
+[Third Pic](SampleImages/pic3.png)
+
 ### Converting the frames to video:
 
 ffmpeg is used to convert the generated frames into a video (.mp4):

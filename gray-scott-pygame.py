@@ -6,8 +6,8 @@ import pygame
 from numba import njit
 
 # Pygame variables
-width = 200
-height = 200
+width = 300
+height = 300
 screen_size = (width, height)
 screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("Reaction - Diffusion")
@@ -42,32 +42,17 @@ current_grid[a:b, c:d] = [0, 1]
 
 
 @njit
-def laplace2DA(x, y, grid):
+def laplace2D(x, y, grid, component):
     result = 0
-    result += grid[x, y][0] * -1
-    result += grid[x + 1, y][0] * 0.2
-    result += grid[x - 1, y][0] * 0.2
-    result += grid[x, y + 1][0] * 0.2
-    result += grid[x, y - 1][0] * 0.2
-    result += grid[x + 1, y + 1][0] * 0.05
-    result += grid[x + 1, y - 1][0] * 0.05
-    result += grid[x - 1, y + 1][0] * 0.05
-    result += grid[x - 1, y - 1][0] * 0.05
-    return result
-
-
-@njit
-def laplace2DB(x, y, grid):
-    result = 0
-    result += grid[x, y][1] * -1
-    result += grid[x + 1, y][1] * 0.2
-    result += grid[x - 1, y][1] * 0.2
-    result += grid[x, y + 1][1] * 0.2
-    result += grid[x, y - 1][1] * 0.2
-    result += grid[x + 1, y + 1][1] * 0.05
-    result += grid[x + 1, y - 1][1] * 0.05
-    result += grid[x - 1, y + 1][1] * 0.05
-    result += grid[x - 1, y - 1][1] * 0.05
+    result += grid[x, y][component] * -1
+    result += grid[x + 1, y][component] * 0.2
+    result += grid[x - 1, y][component] * 0.2
+    result += grid[x, y + 1][component] * 0.2
+    result += grid[x, y - 1][component] * 0.2
+    result += grid[x + 1, y + 1][component] * 0.05
+    result += grid[x + 1, y - 1][component] * 0.05
+    result += grid[x - 1, y + 1][component] * 0.05
+    result += grid[x - 1, y - 1][component] * 0.05
     return result
 
 
@@ -86,8 +71,8 @@ def update(c_grid):
         for y in range(1, height - 1):
             A = c_grid[x, y][0]
             B = c_grid[x, y][1]
-            nA = A + (dA * laplace2DA(x, y, c_grid) - A*B*B + f*(1 - A)) * dt
-            nB = B + (dB * laplace2DB(x, y, c_grid) + A*B*B - (k + f) * B) * dt
+            nA = A + (dA * laplace2D(x, y, c_grid, 0) - A*B*B + f*(1 - A)) * dt
+            nB = B + (dB * laplace2D(x, y, c_grid, 1) + A*B*B - (k + f) * B) * dt
 
             new_A = constrain(nA, 0, 1)
             new_B = constrain(nB, 0, 1)
@@ -103,12 +88,13 @@ def get_color(grid):
         for y in range(height):
             A = grid[x, y][0]
             B = grid[x, y][1]
-            color = constrain(A - B, 0, 1)
-            c_arr[x, y][0] = floor(255 * color)
-            c_arr[x, y][1] = floor(255 * color)
-            c_arr[x, y][2] = floor(255 * color)
+            c = floor((A - B) * 255)
+            c_arr[x, y][0] = constrain(255 - c, 0, 255)
+            c_arr[x, y][1] = constrain(55 - c, 0, 255)
+            c_arr[x, y][2] = constrain(155 - c, 0, 255)
 
     return c_arr
+
 
 
 # Main loop
