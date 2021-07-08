@@ -1,6 +1,6 @@
 # Gray Scott's Reaction Diffusion, Implemented using Python
 
-This project implements gray scott's reaction diffusion using python. Individual frames are calculated and generated as .png photos by using Pillow. Numpy arrays are used to store value of concentration of each chemical in each cell. To speed up the calculations, numba is also used.
+This project implements Gray Scott's reaction diffusion using python. Individual frames are calculated and generated as .png photos by using Pillow. Numpy arrays are used to store value of concentration of each chemical in each cell. To speed up the calculations, numba is also used.
 
 ### Inspiration:
 
@@ -16,7 +16,7 @@ Here are a few samples of what this script can produce:
 
 ### Converting the frames to video:
 
-ffmpeg is used to convert the generated frames into a video (.mp4):
+ffmpeg is used to convert the generated frames into a video (.mp4), using the following command:
 
 `ffmpeg -r {frame_rate} -f image2 -s {resolution} -i pic%04d.png -vcodec libx264 -crf 25  -pix_fmt yuv420p output.mp4`
 
