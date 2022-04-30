@@ -1,4 +1,5 @@
 from math import floor
+import time
 
 import numpy as np
 from numba import njit
@@ -90,6 +91,8 @@ def get_color(grid):
     return c_arr
 
 
+start_time = time.time()
+
 # main loop
 frames = 90000  # Number of frames desired by user
 num = 0
@@ -106,3 +109,6 @@ for frame in range(frames):
         num += 1
 
     print(frame)
+
+elapsed = time.time() - start_time
+print(f'{width} * {height} * {frames} = {width * height * frames / elapsed / 1e6 :.1f} megapixels per second')
