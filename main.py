@@ -1,7 +1,7 @@
 from math import floor
+import time
 
 import numpy as np
-from numba import njit
 from PIL import Image
 
 # setup canvas
@@ -19,90 +19,80 @@ k = 0.051  # Kill Rate
 dt = 1  # time step
 
 # Initialize grids that store the value of cocentration of chemicals in each pixel
-current_grid = np.zeros((width, height, 2), dtype=np.float32)
-next_grid = np.zeros((width, height, 2), dtype=np.float32)
+current_grid = np.zeros((2, width, height), dtype=np.float32)
+next_grid = np.zeros((2, width, height), dtype=np.float32)
 
-for x in range(width):
-    for y in range(height):
-        current_grid[x, y] = [1, 0]
+current_grid[0,:,:] = 1
+current_grid[1,:,:] = 0
 
 a = floor(width/2 - seed_size/2)
 b = floor(width/2 + seed_size/2)
 c = floor(height/2 - seed_size/2)
 d = floor(height/2 + seed_size/2)
-current_grid[a:b, c:d] = [0, 1]
+current_grid[:,a:b,c:d] = 1 - current_grid[:,a:b,c:d]
 
 
 # functions
-@njit
-def laplace2D(x, y, grid, component):
-    result = 0
-    result += grid[x, y][component] * -1
-    result += grid[x + 1, y][component] * 0.2
-    result += grid[x - 1, y][component] * 0.2
-    result += grid[x, y + 1][component] * 0.2
-    result += grid[x, y - 1][component] * 0.2
-    result += grid[x + 1, y + 1][component] * 0.05
-    result += grid[x + 1, y - 1][component] * 0.05
-    result += grid[x - 1, y + 1][component] * 0.05
-    result += grid[x - 1, y - 1][component] * 0.05
-    return result
+def laplace2D(plane):
+    plane020 = plane * 0.2
+    plane005 = plane * 0.05
+
+    new_plane = 0 - plane
+    new_plane += np.roll(plane020, 1, axis=0)
+    new_plane += np.roll(plane020, 1, axis=1)
+    new_plane += np.roll(plane020, -1, axis=0)
+    new_plane += np.roll(plane020, -1, axis=1)
+    new_plane += np.roll(plane005, (1, 1), axis=(0, 1))
+    new_plane += np.roll(plane005, (1, -1), axis=(0, 1))
+    new_plane += np.roll(plane005, (-1, 1), axis=(0, 1))
+    new_plane += np.roll(plane005, (-1, -1), axis=(0, 1))
+
+    return new_plane
 
 
-@njit
-def constrain(value, min_limit, max_limit):
-    return min(max_limit, max(min_limit, value))
-
-
-@njit
-def update(c_grid):
+def update(grid):
     '''Updates the surface'''
+    A, B = grid[0,:,:], grid[1,:,:]
+    ABB = A*B*B
 
-    new_arr = np.zeros((width, height, 2), dtype=np.float32)
-    for x in range(1, width - 1):
-        for y in range(1, height - 1):
-            A = c_grid[x, y][0]
-            B = c_grid[x, y][1]
-            nA = A + (dA * laplace2D(x, y, c_grid, 0) - A*B*B + f*(1 - A)) * dt
-            nB = B + (dB * laplace2D(x, y, c_grid, 1) + A*B*B - (k + f) * B) * dt
+    newA = A + (dA * laplace2D(A) - ABB + f * (1 - A))
+    newB = B + (dB * laplace2D(B) + ABB - (k + f) * B)
+    new_grid = np.array((newA, newB), dtype=np.float32).clip(0, 1)
 
-            new_A = constrain(nA, 0, 1)
-            new_B = constrain(nB, 0, 1)
-            new_arr[x, y] = [new_A, new_B]
-
-    return new_arr
+    return new_grid
 
 
-@njit
 def get_color(grid):
     '''set color of each pixel according to concentration'''
+    rgb = np.empty((grid.shape[1], grid.shape[2], 3), dtype=np.uint8)
 
-    c_arr = np.zeros((width, height, 3), dtype=np.uint8)
-    for x in range(width):
-        for y in range(height):
-            A = grid[x, y][0]
-            B = grid[x, y][1]
-            c = floor((A - B) * 255)
-            c_arr[x, y][0] = constrain(255 - c, 0, 255)
-            c_arr[x, y][1] = constrain(55 - c, 0, 255)
-            c_arr[x, y][2] = constrain(155 - c, 0, 255)
+    A, B = grid[0,:,:], grid[1,:,:]
+    chan = ((A - B) * 255).astype(int)
+    rgb[:,:,0] = (255 - chan).clip(0, 255)
+    rgb[:,:,1] = (55 - chan).clip(0, 255)
+    rgb[:,:,2] = (155 - chan).clip(0, 255)
 
-    return c_arr
+    return rgb
 
+
+start_time = time.time()
 
 # main loop
 frames = 90000  # Number of frames desired by user
 num = 0
 for frame in range(frames):
     next_grid = update(current_grid)
-    canvas = get_color(next_grid)
     current_grid = next_grid
 
     # generates image every fourth frame, change according to your needs
     if frame % 4 == 0:
+        canvas = get_color(next_grid)
         img = Image.fromarray(np.rot90(canvas), 'RGB')
         str_num = "0000" + str(num)
         img.save(f'video\\pic{str_num[-5:]}.png')
         num += 1
 
     print(frame)
+
+elapsed = time.time() - start_time
+print(f'{width} * {height} * {frames} = {width * height * frames / elapsed / 1e6 :.1f} megapixels per second')
