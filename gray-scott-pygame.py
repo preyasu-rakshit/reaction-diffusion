@@ -20,8 +20,8 @@ seed_size = 20
 dA = 1.0
 dB = 0.5
 
-f = 0.018  # Feed Rate
-k = 0.051  # Kill Rate
+f = 0.0367  # Feed Rate 
+k = 0.0649  # Kill Rate
 
 dt = 1  # time step
 

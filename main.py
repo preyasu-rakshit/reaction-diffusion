@@ -5,8 +5,8 @@ import numpy as np
 from PIL import Image
 
 # setup canvas
-width = 200
-height = 200
+width = 400
+height = 400
 seed_size = 40
 
 # Diffusion Rates
@@ -89,7 +89,7 @@ for frame in range(frames):
         canvas = get_color(next_grid)
         img = Image.fromarray(np.rot90(canvas), 'RGB')
         str_num = "0000" + str(num)
-        img.save(f'video\\pic{str_num[-5:]}.png')
+        img.save(f'output\\pic{str_num[-5:]}.png')
         num += 1
 
     print(frame)
