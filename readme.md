@@ -67,6 +67,7 @@ python main.py
 3. To change patterns, you need to change two important parameters: feed-rate and kill-rate. Below are some well known patterns and the corresponding values of kill and feed rate:
 
 Pattern | Feed Rate | Kill Rate
+---|---|---|
 Default | 0.037 | 0.060
 Solitons | 0.03 | 0.062
 Moving Spots | 0.014 | 0.054
