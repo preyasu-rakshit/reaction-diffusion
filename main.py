@@ -85,7 +85,7 @@ for frame in range(frames):
     current_grid = next_grid
 
     # generates image every fourth frame, change according to your needs
-    if frame % 4 == 0:
+    if frame % 4 == 0 and frame >= 1000:
         canvas = get_color(next_grid)
         img = Image.fromarray(np.rot90(canvas), 'RGB')
         str_num = "0000" + str(num)

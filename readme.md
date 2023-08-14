@@ -76,7 +76,7 @@ Waves | 0.014 | 0.045
 
 ### Output
 
-1. A sample with f = 0.018, k = 0.051:
+1. A [sample](./SampleImages/output.gif) with f = 0.018, k = 0.051:
 <img src="./SampleImages/output.gif">
 
 

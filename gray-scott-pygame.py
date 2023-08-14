@@ -6,8 +6,8 @@ import pygame
 from numba import njit
 
 # Pygame variables
-width = 300
-height = 300
+width = 400
+height = 400
 screen_size = (width, height)
 screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("Reaction - Diffusion")
